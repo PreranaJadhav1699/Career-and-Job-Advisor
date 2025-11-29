@@ -1,0 +1,180 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile     Profile?
+  applications Application[]
+  notifications Notification[]
+  interviews  Interview[]
+  resumes     Resume[]
+  skillGaps   SkillGap[]
+
+  @@map("users")
+}
+
+model Profile {
+  id           String  @id @default(cuid())
+  userId       String  @unique
+  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  title        String?
+  summary      String?
+  experience   Int?    // years of experience
+  location     String?
+  phone        String?
+  linkedin     String?
+  github       String?
+  website      String?
+  careerGoals  String?
+  skills       String? // JSON string of skills array
+  education    String? // JSON string of education array
+  workHistory  String? // JSON string of work history array
+  profilePhoto String? // Profile photo filename
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("profiles")
+}
+
+model Job {
+  id          String   @id @default(cuid())
+  title       String
+  company     String
+  location    String
+  type        String   // full-time, part-time, contract, etc.
+  industry    String
+  description String
+  requirements String
+  salary      String?
+  remote      Boolean  @default(false)
+  postedAt    DateTime @default(now())
+  expiresAt   DateTime?
+  isActive    Boolean  @default(true)
+  externalUrl String?  // URL to the actual job posting on external site
+  source      String?  // Job board source (LinkedIn, Indeed, etc.)
+  
+  applications Application[]
+
+  @@map("jobs")
+}
+
+model Application {
+  id        String   @id @default(cuid())
+  userId    String
+  jobId     String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  
+  status    String   @default("applied") // applied, reviewed, interviewed, rejected, offered
+  appliedAt DateTime @default(now())
+  notes     String?
+  resumeId  String?
+  
+  interviews Interview[]
+
+  @@unique([userId, jobId])
+  @@map("applications")
+}
+
+model Resume {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  filename  String
+  originalName String
+  filePath  String
+  fileSize  Int
+  uploadedAt DateTime @default(now())
+  isActive  Boolean  @default(true)
+
+  @@map("resumes")
+}
+
+model Interview {
+  id           String   @id @default(cuid())
+  applicationId String
+  userId       String
+  application  Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  scheduledAt  DateTime
+  type         String   // phone, video, in-person
+  location     String?
+  meetingLink  String?
+  notes        String?
+  status       String   @default("scheduled") // scheduled, completed, cancelled
+  feedback     String?
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("interviews")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  title     String
+  message   String
+  type      String   // job_alert, application_update, interview_reminder, etc.
+  isRead    Boolean  @default(false)
+  data      String?  // JSON string for additional data
+  
+  createdAt DateTime @default(now())
+
+  @@map("notifications")
+}
+
+model SkillGap {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  jobTitle    String
+  currentSkills String // JSON string of current skills
+  requiredSkills String // JSON string of required skills
+  missingSkills String // JSON string of missing skills
+  recommendations String // JSON string of recommendations
+  
+  createdAt   DateTime @default(now())
+
+  @@map("skill_gaps")
+}
+
+model CareerResource {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  type        String   // article, course, video, etc.
+  category    String   // interview_tips, resume_writing, career_advice, etc.
+  author      String?
+  url         String?
+  tags        String?  // JSON string of tags
+  isActive    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("career_resources")
+}
+
+
+
+
