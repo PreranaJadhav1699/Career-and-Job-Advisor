@@ -1,6 +1,7 @@
 # Career & Job Advisor
 
-A comprehensive career and job search platform with AI-powered features, built with Next.js, TypeScript, and integrated with Ollama for local LLM capabilities.
+Self-hosted, AI-powered career hub built with Next.js, TypeScript, Prisma, and Ollama.  
+Track jobs, manage resumes/profiles, schedule interviews, get notifications—and use AI for resume analysis, cover letters, skill-gap insights, and interview prep.
 
 ## Features
 
